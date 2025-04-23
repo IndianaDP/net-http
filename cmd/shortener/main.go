@@ -2,16 +2,58 @@ package main
 
 import (
 	"fmt"
+	"io"
 	"net/http"
+	"strings"
 )
 
-func main() {
-	// Регистрируем обработчик для всех запросов
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, "Hello, Go!")
-	})
+var store = map[string]string{}
 
-	// Запускаем сервер на порту 8080
+const uuid = "i2o3hgo3ihg"
+
+func redirectHandler(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodPost && r.URL.Path == "/" {
+		url, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read URL", http.StatusBadRequest)
+			return
+		}
+		store[uuid] = string(url)
+		fmt.Fprintf(w, "https://localhost:8080/%s", uuid)
+	}
+	if r.Method == http.MethodGet {
+		if r.URL.Path == "/" {
+			http.Error(w, "ID is required", http.StatusBadRequest)
+			return
+		}
+		if r.URL.Path != "/" {
+			id := strings.TrimSpace(strings.TrimPrefix(r.URL.Path, "/"))
+
+			if id == "" {
+				http.Error(w, "ID is empty", http.StatusBadRequest)
+				return
+			}
+
+			url, ok := store[uuid]
+			if !ok || strings.TrimSpace(url) == "" {
+				http.Error(w, "URL not found", http.StatusNotFound)
+				return
+			}
+
+			if id != uuid {
+				http.Error(w, "Invalid ID", http.StatusNotFound)
+				return
+			}
+
+			http.Redirect(w, r, store[uuid], http.StatusFound)
+			return
+		}
+	}
+}
+
+func main() {
+	http.HandleFunc("/", redirectHandler)
+
 	fmt.Println("Starting server at port 8080")
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
