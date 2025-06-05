@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/eagle/net-http/internal/routers"
+	"github.com/IndianaDP/net-http/internal/routers"
 )
 
 func main() {

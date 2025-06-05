@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eagle/net-http/internal/services"
+	"github.com/IndianaDP/net-http/internal/services"
 )
 
 const uuid = "i2o3hgo3ihg"

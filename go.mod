@@ -1,3 +1,3 @@
-module github.com/eagle/net-http
+module github.com/IndianaDP/net-http
 
 go 1.21

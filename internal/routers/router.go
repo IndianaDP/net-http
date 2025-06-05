@@ -3,7 +3,7 @@ package routers
 import (
 	"net/http"
 
-	"github.com/eagle/net-http/internal/handlers"
+	"github.com/IndianaDP/net-http/internal/handlers"
 )
 
 func SetupRouter() {

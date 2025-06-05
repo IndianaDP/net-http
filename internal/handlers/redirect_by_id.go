@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/eagle/net-http/internal/services"
+	"github.com/IndianaDP/net-http/internal/services"
 )
 
 func RedirectByID(w http.ResponseWriter, r *http.Request) {
