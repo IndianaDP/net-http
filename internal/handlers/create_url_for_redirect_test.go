@@ -33,7 +33,9 @@ func TestCreateURLForRedirect(t *testing.T) {
 
 	req = httptest.NewRequest(http.MethodPost, "/", strings.NewReader("example.com"))
 	w = httptest.NewRecorder()
+
 	CreateURLForRedirect(w, req)
+
 	if w.Result().StatusCode != http.StatusBadRequest {
 		t.Errorf("Expected 400 for URL without https:// or http://, got %d", w.Result().StatusCode)
 	}
