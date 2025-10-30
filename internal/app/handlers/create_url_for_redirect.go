@@ -5,20 +5,11 @@ import (
 	"io"
 	"net/http"
 	"strings"
-
-	"github.com/IndianaDP/net-http/internal/config"
-	"github.com/IndianaDP/net-http/internal/services"
 )
 
-func CreateURLForRedirect(w http.ResponseWriter, r *http.Request) {
-
-	cfg, err := config.LoadConfig(false)
-	if err != nil {
-		http.Error(w, "Failed to load config", http.StatusInternalServerError)
-		return
-	}
-	hostname := string(cfg.Hostname)
-	uuid := string(cfg.UUID)
+func (h *Handlers) CreateURLForRedirect(w http.ResponseWriter, r *http.Request) {
+	hostname := h.config.Hostname
+	uuid := h.config.UUID
 
 	url, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -34,7 +25,7 @@ func CreateURLForRedirect(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	services.SaveURL(uuid, string(url))
+	h.urlStore.SaveURL(uuid, string(url))
 
 	fmt.Fprintf(w, "%s/%s", hostname, uuid)
 }
