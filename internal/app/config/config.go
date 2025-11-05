@@ -12,7 +12,6 @@ import (
 type Values struct {
 	Address  string `env:"SERVER_ADDRESS"`
 	Hostname string `env:"BASE_URL"`
-	UUID     string `env:"UUID"`
 }
 
 func LoadConfig(getFlags bool) (*Values, error) {
@@ -47,6 +46,5 @@ func LoadConfig(getFlags bool) (*Values, error) {
 		cfg.Hostname = *hostname
 	}
 
-	cfg.UUID = "i2o3hgo3ihg"
 	return &cfg, nil
 }

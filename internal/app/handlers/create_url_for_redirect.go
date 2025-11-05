@@ -9,7 +9,6 @@ import (
 
 func (h *Handlers) CreateURLForRedirect(w http.ResponseWriter, r *http.Request) {
 	hostname := h.config.Hostname
-	uuid := h.config.UUID
 
 	url, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -20,12 +19,15 @@ func (h *Handlers) CreateURLForRedirect(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, "URL is empty", http.StatusBadRequest)
 		return
 	}
-	if !strings.HasPrefix(string(url), "http://") && !strings.HasPrefix(string(url), "https://") {
+
+	urlString := string(url)
+
+	if !strings.HasPrefix(urlString, "http://") && !strings.HasPrefix(urlString, "https://") {
 		http.Error(w, "URL must start with http:// or https://", http.StatusBadRequest)
 		return
 	}
 
-	h.urlStore.SaveURL(uuid, string(url))
+	uid := h.urlStore.SaveURL(urlString)
 
-	fmt.Fprintf(w, "%s/%s", hostname, uuid)
+	fmt.Fprintf(w, "%s/%s", hostname, uid)
 }
