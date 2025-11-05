@@ -3,13 +3,10 @@ package handlers
 import (
 	"net/http"
 	"strings"
-
-	"github.com/IndianaDP/net-http/internal/services"
 )
 
-func RedirectByID(w http.ResponseWriter, r *http.Request) {
-
-	if services.IsStoreEmpty() {
+func (h *Handlers) RedirectByID(w http.ResponseWriter, r *http.Request) {
+	if h.urlStore.IsStoreEmpty() {
 		http.Error(w, "URL database is empty", http.StatusServiceUnavailable)
 		return
 	}
@@ -21,7 +18,7 @@ func RedirectByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	url, ok := services.GetURL(id)
+	url, ok := h.urlStore.GetURL(id)
 	if !ok {
 		http.Error(w, "Invalid ID", http.StatusNotFound)
 		return
