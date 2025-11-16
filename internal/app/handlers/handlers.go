@@ -24,4 +24,5 @@ func NewHandlers(cfg *config.Values, store services.URLStore) IHandlers {
 type IHandlers interface {
 	CreateURLForRedirect(w http.ResponseWriter, r *http.Request)
 	RedirectByID(w http.ResponseWriter, r *http.Request)
+	GetUrlsList(w http.ResponseWriter, r *http.Request)
 }

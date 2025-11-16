@@ -1,31 +1,53 @@
 package services
 
 import (
-	"crypto/sha256"
+	"crypto/sha1"
 	"fmt"
 )
 
-func (s *URLStoreService) SaveURL(url string) string {
+func (s *URLStoreService) SaveURL(url string) (string, error) {
 	uid := s.encode(url)
 
-	if _, ok := s.store[uid]; ok {
-		fmt.Printf("URL: %s already exists \n", url)
-		return uid
+	id, err := s.conn.IsUrlExists(url)
+	if err != nil {
+		fmt.Printf("Error checking URL existence in DB: %v\n", err)
+		return "", err
+	}
+	if id != "" {
+		fmt.Printf("URL already exists in DB with UUID: %s\n", id)
+		return "", nil
 	}
 
-	s.store[uid] = url
-
-	fmt.Printf("Store count: %d \n", len(s.store))
-
-	for k, v := range s.store {
-		fmt.Printf("Saved UUID: %s with URL: %s\n", k, v)
+	pk, err := s.conn.InsertURLIntoDB(url, uid)
+	if err != nil {
+		fmt.Printf("Error inserting URL into DB: %v\n", pk)
+		return "", err
 	}
 
-	return uid
+	fmt.Printf("URL saved with id: %s\n", pk)
+
+	count, err := s.conn.StoreCount()
+	if err != nil {
+		fmt.Printf("Error retrieving store count from DB: %v\n", err)
+		return "", err
+	}
+	fmt.Printf("URLs count: %s \n", count)
+
+	savedUrls, err := s.conn.StoredUrls()
+	if err != nil {
+		fmt.Printf("Error retrieving stored URLs from DB: %v\n", err)
+		return "", err
+	}
+
+	for _, v := range savedUrls {
+		fmt.Printf("Saved UUID: %s with URL: %s\n", v.UUID, v.URL)
+	}
+
+	return uid, nil
 }
 
 func (s *URLStoreService) encode(value string) string {
-	hash := sha256.Sum256([]byte(value))
+	hash := sha1.Sum([]byte(value))
 
-	return fmt.Sprintf("%x", hash)[:10]
+	return fmt.Sprintf("%x", hash)
 }
