@@ -27,7 +27,15 @@ func (h *Handlers) CreateURLForRedirect(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	uid := h.urlStore.SaveURL(urlString)
+	uid, err := h.urlStore.SaveURL(urlString)
+	if err != nil {
+		http.Error(w, "Failed to save URL", http.StatusInternalServerError)
+		return
+	}
+	if uid == "" {
+		http.Error(w, "URL already exists", http.StatusConflict)
+		return
+	}
 
 	fmt.Fprintf(w, "%s/%s", hostname, uid)
 }

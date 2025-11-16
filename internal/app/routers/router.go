@@ -3,29 +3,27 @@ package routers
 import (
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+
 	"github.com/IndianaDP/net-http/internal/app/config"
+	"github.com/IndianaDP/net-http/internal/app/db"
 	"github.com/IndianaDP/net-http/internal/app/handlers"
 	"github.com/IndianaDP/net-http/internal/app/services"
 )
 
-func SetupRouter(cfg *config.Values) http.Handler {
-	store := services.NewURLStoreService()
+func SetupRouter(cfg *config.Values, conn db.DB) http.Handler {
+	store := services.NewURLStoreService(conn)
 	h := handlers.NewHandlers(cfg, store)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodPost && r.URL.Path == "/" {
-			h.CreateURLForRedirect(w, r)
-			return
-		}
+	router := chi.NewRouter()
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 
-		if r.Method == http.MethodGet {
-			h.RedirectByID(w, r)
-			return
-		}
+	router.Post("/create", h.CreateURLForRedirect)
+	router.Get("/list", h.GetUrlsList)
+	router.Get("/", h.RedirectByID)
+	router.Get("/{id}", h.RedirectByID)
 
-		http.Error(w, "Not found", http.StatusNotFound)
-	})
-
-	return mux
+	return router
 }
