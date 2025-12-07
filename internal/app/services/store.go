@@ -5,7 +5,7 @@ import (
 )
 
 type URLStore interface {
-	SaveURL(url string) (string, error)
+	SaveURL(user_id string, url string) (string, error)
 	GetURL(uuid string) (string, error)
 	GetURLs() ([]ResponseWriter, error)
 }

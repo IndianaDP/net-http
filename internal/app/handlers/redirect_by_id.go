@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/IndianaDP/net-http/internal/app/utils"
 	"github.com/go-chi/chi/v5"
 )
 
@@ -12,23 +13,23 @@ func (h *Handlers) RedirectByID(w http.ResponseWriter, r *http.Request) {
 	id := chi.URLParam(r, "id")
 
 	if id == "" {
-		http.Error(w, "ID is required", http.StatusBadRequest)
+		utils.ResponseError(w, http.StatusBadRequest, "ID is required")
 		return
 	}
 
 	url, err := h.urlStore.GetURL(id)
 	if err != nil {
-		http.Error(w, "Failed to get url for redirect", http.StatusInternalServerError)
+		utils.ResponseError(w, http.StatusInternalServerError, "Failed to get url for redirect")
 		return
 	}
 
 	if url == "" {
-		http.Error(w, "URL not found", http.StatusNotFound)
+		utils.ResponseError(w, http.StatusNotFound, "URL not found")
 		return
 	}
 
 	if !strings.HasPrefix(strings.TrimSpace(url), "https://") && !strings.HasPrefix(strings.TrimSpace(url), "http://") {
-		http.Error(w, "Invalid URL stored", http.StatusInternalServerError)
+		utils.ResponseError(w, http.StatusInternalServerError, "Invalid URL stored")
 		return
 	}
 

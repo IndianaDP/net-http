@@ -13,7 +13,7 @@ type rdb struct {
 
 type RDB interface {
 	Close()
-	Set(key string, value string) error
+	Set(key string, value string) (string, error)
 	Get(key string) (string, error)
 	Count() (string, error)
 	Exists(key string) (bool, error)

@@ -20,11 +20,15 @@ type storage struct {
 }
 
 type Storage interface {
-	Insert(url string, uuid string) error
+	InsertUrl(url string, uuid string) (int, error)
+	InsertUser(userID string) (int, error)
+	InsertUserUrl(userID int, urlID int) error
 	Get(uuid string) (string, error)
-	Exists(url string) (bool, error)
+	Exists(userId string, url string) (bool, error)
 	Count() (string, error)
 	List() ([]models.Store, error)
+	DeleteUrl(urlID string) error
+	DeleteUserUrl(userID string, urlID string) error
 }
 
 func NewStorage(cfg *config.Values) (Storage, error) {
@@ -45,14 +49,36 @@ func NewStorage(cfg *config.Values) (Storage, error) {
 	}
 }
 
-func (s *storage) Insert(url string, uuid string) error {
+func (s *storage) InsertUrl(url string, uuid string) (int, error) {
 	switch {
 	case s.pgClient != nil:
 		return (*s.pgClient).InsertURL(url, uuid)
-	case s.redisClient != nil:
-		return (*s.redisClient).Set(uuid, url)
+	// case s.redisClient != nil:
+	// 	return (*s.redisClient).Set(uuid, url)
+	default:
+		return 0, fmt.Errorf("no storage client available")
+	}
+}
+
+func (s *storage) InsertUserUrl(userID int, urlID int) error {
+	switch {
+	case s.pgClient != nil:
+		return (*s.pgClient).InsertUserUrl(userID, urlID)
+	// case s.redisClient != nil:
+	// 	return (*s.redisClient).Set(uuid, url)
 	default:
 		return fmt.Errorf("no storage client available")
+	}
+}
+
+func (s *storage) InsertUser(userID string) (int, error) {
+	switch {
+	case s.pgClient != nil:
+		return (*s.pgClient).InsertUser(userID)
+	// case s.redisClient != nil:
+	// 	return (*s.redisClient).Set(uuid, url)
+	default:
+		return 0, fmt.Errorf("no storage client available")
 	}
 }
 
@@ -67,12 +93,12 @@ func (s *storage) Get(uuid string) (string, error) {
 	}
 }
 
-func (s *storage) Exists(uuid string) (bool, error) {
+func (s *storage) Exists(userId string, uuid string) (bool, error) {
 	switch {
 	case s.pgClient != nil:
-		return (*s.pgClient).IsUrlExists(uuid)
-	case s.redisClient != nil:
-		return (*s.redisClient).Exists(uuid)
+		return (*s.pgClient).IsUrlExists(userId, uuid)
+	// case s.redisClient != nil:
+	// 	return (*s.redisClient).Exists(userId, uuid)
 	default:
 		return false, fmt.Errorf("no storage client available")
 	}
@@ -97,5 +123,27 @@ func (s *storage) List() ([]models.Store, error) {
 		return (*s.redisClient).List()
 	default:
 		return nil, fmt.Errorf("no storage client available")
+	}
+}
+
+func (s *storage) DeleteUrl(urlID string) error {
+	switch {
+	case s.pgClient != nil:
+		return (*s.pgClient).DeleteUrl(urlID)
+	// case s.redisClient != nil:
+	// 	return (*s.redisClient).List()
+	default:
+		return fmt.Errorf("no storage client available")
+	}
+}
+
+func (s *storage) DeleteUserUrl(userID, urlID string) error {
+	switch {
+	case s.pgClient != nil:
+		return (*s.pgClient).DeleteUserUrl(userID, urlID)
+	// case s.redisClient != nil:
+	// 	return (*s.redisClient).List()
+	default:
+		return fmt.Errorf("no storage client available")
 	}
 }
