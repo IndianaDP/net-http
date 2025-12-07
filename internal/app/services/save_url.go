@@ -5,10 +5,10 @@ import (
 	"fmt"
 )
 
-func (s *URLStoreService) SaveURL(url string) (string, error) {
+func (s *URLStoreService) SaveURL(userId, url string) (string, error) {
 	uid := s.encode(url)
 
-	exists, err := s.storage.Exists(uid)
+	exists, err := s.storage.Exists(userId, uid)
 	if err != nil {
 		fmt.Printf("Error checking URL existence in DB: %v\n", err)
 		return "", err
@@ -18,8 +18,17 @@ func (s *URLStoreService) SaveURL(url string) (string, error) {
 		return "", nil
 	}
 
-	err = s.storage.Insert(url, uid)
+	userExternalId, err := s.storage.InsertUser(userId)
 	if err != nil {
+		return "", err
+	}
+
+	urlId, err := s.storage.InsertUrl(url, uid)
+	if err != nil {
+		return "", err
+	}
+
+	if err := s.storage.InsertUserUrl(userExternalId, urlId); err != nil {
 		return "", err
 	}
 
