@@ -1,20 +1,20 @@
 package services
 
 import (
-	"github.com/IndianaDP/net-http/internal/app/db"
+	"github.com/IndianaDP/net-http/internal/app/db/storage"
 )
 
 type URLStore interface {
 	SaveURL(url string) (string, error)
 	GetURL(uuid string) (string, error)
-	GetAllUrls() ([]ResponseWriter, error)
+	GetURLs() ([]ResponseWriter, error)
 }
 type URLStoreService struct {
-	conn db.DB
+	storage storage.Storage
 }
 
-func NewURLStoreService(conn db.DB) *URLStoreService {
+func NewURLStoreService(storage storage.Storage) *URLStoreService {
 	return &URLStoreService{
-		conn: conn,
+		storage: storage,
 	}
 }

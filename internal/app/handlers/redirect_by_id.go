@@ -9,7 +9,6 @@ import (
 )
 
 func (h *Handlers) RedirectByID(w http.ResponseWriter, r *http.Request) {
-
 	id := chi.URLParam(r, "id")
 
 	if id == "" {
