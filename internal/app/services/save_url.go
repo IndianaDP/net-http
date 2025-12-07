@@ -8,32 +8,29 @@ import (
 func (s *URLStoreService) SaveURL(url string) (string, error) {
 	uid := s.encode(url)
 
-	id, err := s.conn.IsUrlExists(url)
+	exists, err := s.storage.Exists(uid)
 	if err != nil {
 		fmt.Printf("Error checking URL existence in DB: %v\n", err)
 		return "", err
 	}
-	if id != "" {
-		fmt.Printf("URL already exists in DB with UUID: %s\n", id)
+	if exists {
+		fmt.Printf("URL already exists in DB")
 		return "", nil
 	}
 
-	pk, err := s.conn.InsertURLIntoDB(url, uid)
+	err = s.storage.Insert(url, uid)
 	if err != nil {
-		fmt.Printf("Error inserting URL into DB: %v\n", pk)
 		return "", err
 	}
 
-	fmt.Printf("URL saved with id: %s\n", pk)
-
-	count, err := s.conn.StoreCount()
+	count, err := s.storage.Count()
 	if err != nil {
 		fmt.Printf("Error retrieving store count from DB: %v\n", err)
 		return "", err
 	}
 	fmt.Printf("URLs count: %s \n", count)
 
-	savedUrls, err := s.conn.StoredUrls()
+	savedUrls, err := s.storage.List()
 	if err != nil {
 		fmt.Printf("Error retrieving stored URLs from DB: %v\n", err)
 		return "", err

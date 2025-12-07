@@ -9,9 +9,9 @@ type ResponseWriter struct {
 	URL string `json:"url"`
 }
 
-func (s *URLStoreService) GetAllUrls() ([]ResponseWriter, error) {
+func (s *URLStoreService) GetURLs() ([]ResponseWriter, error) {
 
-	urls, err := s.conn.StoredUrls()
+	urls, err := s.storage.List()
 	if err != nil {
 		fmt.Printf("Error retrieving URLs from DB: %v\n", err)
 		return nil, err

@@ -6,7 +6,7 @@ import (
 
 func (s *URLStoreService) GetURL(uuid string) (string, error) {
 
-	url, err := s.conn.GetURLFromDB(uuid)
+	url, err := s.storage.Get(uuid)
 	if err != nil {
 		fmt.Printf("Error retrieving URL from DB: %v\n", err)
 		return "", err
